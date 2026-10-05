@@ -62,6 +62,16 @@ export async function getProducts(): Promise<Product[]> {
   return toProducts(rows);
 }
 
+/** The most recently added products, newest first. */
+export async function getNewArrivals(limit = 24): Promise<Product[]> {
+  const rows = await db.query.products.findMany({
+    with: withRelations,
+    orderBy: [desc(products.createdAt), asc(products.slug)],
+    limit,
+  });
+  return toProducts(rows);
+}
+
 /** Cached per request: the product page calls it from both generateMetadata and the page. */
 export const getProductBySlug = cache(async (slug: string): Promise<Product | undefined> => {
   const row = await db.query.products.findFirst({
@@ -70,6 +80,30 @@ export const getProductBySlug = cache(async (slug: string): Promise<Product | un
   });
   return row ? toProduct(row) : undefined;
 });
+
+/** Slugs of every category, for prerendering collection pages. */
+export async function getCategorySlugs(): Promise<string[]> {
+  const rows = await db.select({ slug: categories.slug }).from(categories);
+  return rows.map((row) => row.slug);
+}
+
+/**
+ * A category and its products, newest first. Cached per request: the collection page calls it
+ * from both generateMetadata and the page.
+ */
+export const getCategoryCollection = cache(
+  async (slug: string): Promise<{ category: Product["category"]; products: Product[] } | undefined> => {
+    const category = await db.query.categories.findFirst({ where: eq(categories.slug, slug) });
+    if (!category) return undefined;
+
+    const rows = await db.query.products.findMany({
+      where: eq(products.categoryId, category.id),
+      with: withRelations,
+      orderBy: [desc(products.createdAt), asc(products.slug)],
+    });
+    return { category: { slug: category.slug, name: category.name }, products: toProducts(rows) };
+  },
+);
 
 /** Same-category products first, then the rest of the catalog. Never includes the product itself. */
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {

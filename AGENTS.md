@@ -10,12 +10,14 @@ A luxury-fashion eCommerce storefront. The visual language takes cues from premi
 | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | Homepage (`/`)                   | Built: hero, category tiles, two collection campaigns, product grid, editorial story, services, footer |
 | Product page (`/products/[slug]`) | Built: full-screen image carousel, then purchase block (category, name, price, stock, add to bag) beside a details accordion, then "You may also like". Statically generated with ISR (`revalidate = 60`); unknown slugs 404 |
+| New Arrivals (`/collections/new-in`) | Built: page title, item count, latest products (`getNewArrivals`, newest 24) via the shared `ProductListing`. ISR (`revalidate = 60`). Linked from the "New In" nav item and the homepage "View all" |
+| Category collections (`/collections/[slug]`) | Built: category name, item count and that category's products, newest first (`getCategoryCollection`), via `ProductListing`. Prerendered for every category with ISR (`revalidate = 60`); unknown slugs 404. Linked from homepage category tiles and the product page category link |
 | Header, menu drawer, footer      | Built, shared via the root layout                                                                      |
 | Design system                    | Built (tokens, base, components, layout utilities)                                                     |
 | Data                             | Products, categories, stock and product images come from Postgres through `src/lib/catalog.ts` (homepage and product pages use ISR, `revalidate = 60`). Editorial content (hero, collections, story, nav) is still static in `src/data/sample-catalog.ts` |
 | DB schema                        | Catalog tables (`categories`, `products` with `stock_quantity`, `product_images`) in `src/db/schema/catalog.ts`; migrations in `drizzle/`; seeded by `pnpm db:seed`. No auth tables yet |
 | Auth                             | Server/client instances and `/api/auth/*` route wired. No providers, tables or UI                      |
-| Other routes                     | None. Nav, collection/category, account and footer links all 404                                       |
+| Other routes                     | None. Nav links without a matching category (Women, Men, Gifts…), account and footer links all 404                                       |
 | Newsletter, add to bag, back-in-stock | UI only. Each confirms locally; nothing is stored or sent                                       |
 | Cart, checkout, payments, search | Not started                                                                                            |
 | Tests                            | No test framework configured                                                                           |
@@ -57,6 +59,8 @@ src/
   app/
     layout.tsx                 fonts (Jost, Cormorant Garamond), SiteHeader + SiteFooter
     page.tsx                   homepage: composes src/components/home/* + ProductGridSection
+    collections/new-in/page.tsx New Arrivals listing (latest products)
+    collections/[slug]/page.tsx category collection (generateStaticParams, generateMetadata, notFound)
     products/[slug]/page.tsx   product page (generateStaticParams, generateMetadata, notFound)
     globals.css                imports tailwindcss + src/styles/*
     api/auth/[...all]/route.ts Better Auth handler
@@ -65,6 +69,7 @@ src/
     home/                      hero, category-grid, collection-split, editorial-story, services-strip
     product/
       product-card.tsx         grid tile: optional hover image, badge, sold-out label
+      product-listing.tsx      listing page body: title, item count, product grid, empty state
       product-grid-section.tsx titled product grid (homepage New Arrivals, product page recommendations)
       product-gallery.tsx      (client) full-screen carousel: scroll-snap, arrows, ←/→ keys, dots, counter
       product-info.tsx         purchase block + details accordion, two columns at lg
@@ -79,7 +84,7 @@ src/
   db/schema/catalog.ts         categories, products (price_cents, stock_quantity), product_images (primary/hover/gallery) + relations
   lib/
     auth.ts / auth-client.ts   Better Auth server / React client
-    catalog.ts                 async DB access: getProducts, getProductBySlug (React cache), getRelatedProducts, getHomepageCategories
+    catalog.ts                 async DB access: getProducts, getNewArrivals, getProductBySlug / getCategoryCollection (React cache), getCategorySlugs, getRelatedProducts, getHomepageCategories
     catalog-types.ts           domain types (Product, Category, CatalogImage); import with `import type`
     stock.ts                   getStockState(stock) → in_stock | low_stock (≤3) | sold_out (client-safe)
     env.ts                     throws on import if DATABASE_URL is missing
