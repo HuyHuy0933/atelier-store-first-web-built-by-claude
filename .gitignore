@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# course materials (not part of the app)
+Claude_Course_Course_-_Prompts_Workflow_2026_.pdf
