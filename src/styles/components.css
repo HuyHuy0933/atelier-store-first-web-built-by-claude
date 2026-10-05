@@ -1,0 +1,102 @@
+/*
+ * Component classes. Kept in the components layer so any Tailwind utility can override them
+ * (e.g. `btn btn-primary w-full`).
+ */
+
+@layer components {
+  /* ---------- Buttons: square, 48px, 12px bold uppercase ---------- */
+  .btn {
+    @apply inline-flex h-12 min-w-30 cursor-pointer items-center justify-center gap-2 border px-6 text-xs font-bold uppercase tracking-normal whitespace-nowrap transition-colors select-none;
+
+    &:disabled,
+    &[aria-disabled="true"] {
+      @apply pointer-events-none border-line bg-surface-strong text-ink-subtle;
+    }
+
+    & svg {
+      @apply size-4 shrink-0;
+    }
+  }
+
+  .btn-sm {
+    @apply h-10 min-w-0 px-4;
+  }
+
+  /* Solid black: the one primary action per view (add to bag, checkout) */
+  .btn-primary {
+    @apply border-ink bg-ink text-paper hover:border-ink/80 hover:bg-ink/80;
+  }
+
+  /* 1px black outline: secondary actions */
+  .btn-secondary {
+    @apply border-line-strong bg-transparent text-ink hover:bg-ink hover:text-paper;
+  }
+
+  /* For use on top of imagery */
+  .btn-inverse {
+    @apply border-paper bg-paper text-ink hover:border-paper/85 hover:bg-paper/85;
+  }
+
+  .btn-outline-inverse {
+    @apply border-paper bg-transparent text-paper hover:bg-paper hover:text-ink;
+  }
+
+  /* Icon-only control (bag, account, search, close). Always pair with an aria-label. */
+  .btn-icon {
+    @apply inline-flex size-10 cursor-pointer items-center justify-center text-current transition-opacity hover:opacity-60;
+
+    & svg {
+      @apply size-5;
+    }
+  }
+
+  /* ---------- Links ---------- */
+  /* Inline / standalone text link: always underlined */
+  .link {
+    @apply cursor-pointer underline decoration-1 underline-offset-[3px] transition-opacity hover:opacity-60;
+  }
+
+  /* Navigation link: no underline; inactive items are muted, the current one is ink */
+  .link-nav {
+    @apply text-xs font-medium text-ink-muted transition-colors hover:text-ink aria-[current=page]:font-bold aria-[current=page]:text-ink aria-[current=page]:uppercase;
+  }
+
+  /* Underline appears on hover only */
+  .link-quiet {
+    @apply cursor-pointer decoration-1 underline-offset-[3px] hover:underline;
+  }
+
+  /* ---------- Type roles ---------- */
+  /* Small bold uppercase label: section kickers, table heads, button-like text */
+  .text-label {
+    @apply text-xs font-bold uppercase tracking-normal;
+  }
+
+  /* Uppercase section title ("you may also like" style) */
+  .text-section-title {
+    @apply text-base font-bold uppercase lg:text-xl lg:font-medium;
+  }
+
+  .text-page-title {
+    @apply text-xl font-medium lg:text-2xl;
+  }
+
+  .text-display {
+    @apply font-display text-3xl font-normal tracking-normal lg:text-[4rem] lg:leading-[4.25rem];
+  }
+
+  /* Display-serif wordmark for the store name */
+  .wordmark {
+    @apply font-display text-2xl leading-none font-normal tracking-wide uppercase lg:text-[2rem];
+  }
+
+  /* ---------- Form controls ---------- */
+  .input {
+    @apply h-12 w-full border border-line bg-paper px-4 text-sm text-ink transition-colors outline-none focus:border-line-strong aria-invalid:border-error;
+  }
+
+  /* ---------- Dividers ---------- */
+  .divider {
+    @apply h-px w-full border-0 bg-line;
+  }
+}
